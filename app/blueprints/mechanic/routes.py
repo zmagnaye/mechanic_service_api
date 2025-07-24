@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models import Mechanic
-from .schemas import mechanic_schema, mechanics_schema
+from app.blueprints.mechanic.schemas import mechanic_schema, mechanics_schema
 from marshmallow import ValidationError
 from sqlalchemy import select
 
-mechancis_bp = Blueprint("mechanics", __name__, url_prefix = "/mechnanics")
+mechanics_bp = Blueprint("mechanics", __name__, url_prefix = "/mechnanics")
 
 # CREATE A MECHANIC
 @mechanics_bp.route("/", methods = ["POST"])
@@ -24,8 +24,9 @@ def create_mechanic():
 # GET ALL MECHANIC
 @mechanics_bp.route("/", methods = ["GET"])
 def get_mechanics():
-    mechanics = Mechanic.query.all()
-    return mechanics_schema.jsonify(mechanics)
+    query = select(Mechanic)
+    mechanics = db.session.execute(query).scalars().all()
+    return mechanics_schema.jsonify(mechanics), 200
 
 # GET A MECHANIC BY ID
 @mechanics_bp.route("/<int:mechanic_id>", methods = ["GET"])
@@ -36,7 +37,7 @@ def get_mechanic(mechanic_id):
     return mechanic_schema.jsonify(mechanic), 200
 
 # UPDATE A MECHANIC
-@mechanics_bp.route("/<int:mechanic_id>", methods = ["GET"])
+@mechanics_bp.route("/<int:mechanic_id>", methods = ["PUT"])
 def update_mechanic(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
     if not mechanic:
