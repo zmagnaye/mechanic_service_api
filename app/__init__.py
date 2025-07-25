@@ -3,7 +3,7 @@ from .extensions import db, ma
 from .blueprints.mechanic import mechanic_bp
 from .blueprints.service_ticket import service_ticket_bp
 
-def create_app(config_class = "config.DevelopmentConfig"):
+def create_app(config_class = "app.config.DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
