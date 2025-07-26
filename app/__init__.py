@@ -1,14 +1,15 @@
 from flask import Flask
-from .extensions import db, ma
-from .blueprints.mechanic import mechanic_bp
-from .blueprints.service_ticket import service_ticket_bp
+from app.extensions import ma
+from app.models import db
+from app.blueprints.mechanic import mechanic_bp
+from app.blueprints.service_ticket import service_ticket_bp
 
-def create_app(config_class = "app.config.DevelopmentConfig"):
+def create_app(config_name):
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(f"app.config.{config_name}")
 
-    db.init_app(app)
     ma.init_app(app)
+    db.init_app(app)
 
     app.register_blueprint(mechanic_bp, url_prefix="/mechanics")
     app.register_blueprint(service_ticket_bp, url_prefix="/service-tickets")
