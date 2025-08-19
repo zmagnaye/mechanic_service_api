@@ -1,6 +1,5 @@
 from flask import Flask
-from app.extensions import ma
-from app.models import db
+from app.extensions import ma, db, limiter, cache
 from app.blueprints.mechanic import mechanic_bp
 from app.blueprints.service_ticket import service_ticket_bp
 
