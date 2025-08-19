@@ -2,12 +2,7 @@ from datetime import datetime
 from typing import List
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from app.extensions import db
-
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class = Base)
+from app.extensions import db, Base
 
 ticket_mechanic = db.Table(
     "ticket_mechanic",
@@ -24,10 +19,26 @@ class Mechanic(Base):
 
     tickets: Mapped[List["ServiceTicket"]] = db.relationship(secondary = ticket_mechanic, back_populates = "mechanics")
 
+class Customer(Base):
+    __tablename__ = "customer"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    email: Mapped[str] = mapped_column(db.String(360), nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(db.String(200), nullable=False)
+
+    tickets: Mapped[List["ServiceTicket"]] = db.relationship(back_populates="customer", cascade = "all, delete")
+
 class ServiceTicket(Base):
     __tablename__ = "service_ticket"
     id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[str] = mapped_column(db.String(300), nullable=False)
     status: Mapped[str] = mapped_column(default = "open")
 
+    customer: Mapped["Customer"] = db.relationship(back_populates = "tickets")
     mechanics: Mapped[List["Mechanic"]] = db.relationship(secondary= ticket_mechanic, back_populates="tickets")
+
+class Inventory(Base):
+    __tablename__ = "inventory"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    price: Mapped[float] = mapped_column(db.Float, nullable=False)
