@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.extensions import db
+from app.extensions import db, limiter, cache
 from app.models import Customer, ServiceTicket
 from .schemas import customer_schema, customers_schema, login_schema
 from app.utils.util import encode_token, token_required
@@ -23,6 +23,7 @@ def create_customer():
 
 # READ (with pagination)
 @customer_bp.route("/", methods = ["GET"])
+@cache.cached(timeout = 60, query_string=True)
 def list_customers():
     try: 
         limit = int(request.args.get("limit", 10))
@@ -67,6 +68,7 @@ def delete_customer(token_customer_id, customer_id):
 
 # LOGIN: Returns Token
 @customer_bp.route("/login", methods = ["POST"])
+@limiter.limit("5 per minute")
 def login():
     try:
         credentials = login_schema.load(request.json)
