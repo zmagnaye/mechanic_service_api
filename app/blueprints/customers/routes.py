@@ -89,6 +89,6 @@ def login():
 @token_required
 def my_tickets(customer_id):
     q = select(ServiceTicket).where(ServiceTicket.customer_id == customer_id)
-    ticekts = db.session.execute(q).scalars().all()
+    service_tickets = db.session.execute(q).scalars().all()
     from app.blueprints.service_ticket.schemas import service_tickets_schema
     return service_tickets_schema.jsonify(service_tickets), 200
