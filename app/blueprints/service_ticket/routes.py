@@ -2,7 +2,7 @@ from .schemas import service_ticket_schema, service_tickets_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import ServiceTicket, Mechanic, ticket_mechanic, db
+from app.models import ServiceTicket, Mechanic, Inventory, ticket_mechanic, db
 from . import service_ticket_bp
 
 # CREATE A TICKET
@@ -95,7 +95,7 @@ def remove_mechanic(ticket_id, mechanic_id):
 
     return service_ticket_schema.jsonify(ticket), 200
 
-# PUT: EDIT TO ADD/REMOVE MECHANICS
+# EDIT TICKETS TO ADD/REMOVE MECHANICS
 @service_ticket_bp.route("/<int:ticket_id>/edit", methods = ["PUT"])
 def edit_ticket(ticket_id):
     ticket = db.session.get(ServiceTicket, ticket_id)
@@ -119,3 +119,28 @@ def edit_ticket(ticket_id):
 
     db.session.commit()
     return jsonify({"message": f"Updated ticket {ticket_id}"}), 200
+
+# ADD PART TO TICKET
+@service_ticket_bp.route("/<int:ticket_id>/add-part", methods = ["POST"])
+def add_part_to_ticket(ticket_id):
+    ticket = db.session.get(ServiceTicket, ticket_id)
+
+    if not ticket:
+        return jsonify({"error": "Service ticket not found."}), 404
+    
+    data = request.json or {}
+    part_id = data.get("inventory_id")
+
+    if not part_id:
+        return jsonify({"error": "inventory_id us required"}), 400
+    
+    part = db.session.get(Inventory, int(part_id))
+
+    if not part: 
+        return jsonify({"error": "Part not found"}), 404
+    
+    if part not in ticket.parts:
+        ticket.parts.append(part)
+        db.session.commit()
+
+    return service_ticket_schema.jsonify(ticket), 200
