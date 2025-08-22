@@ -34,6 +34,7 @@ class ServiceTicket(Base):
     description: Mapped[str] = mapped_column(db.String(300), nullable=False)
     status: Mapped[str] = mapped_column(default = "open")
 
+    customer_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("customer.id"))
     customer: Mapped["Customer"] = db.relationship(back_populates = "tickets")
     mechanics: Mapped[List["Mechanic"]] = db.relationship(secondary= ticket_mechanic, back_populates="tickets")
 
