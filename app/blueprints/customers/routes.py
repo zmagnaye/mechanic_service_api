@@ -21,15 +21,15 @@ def create_customer():
     db.session.commit()
     return customer_schema.jsonify(customer), 201
 
-# READ (with pagination)
+# GET CUSTOMERS (with pagination)
 @customer_bp.route("/", methods = ["GET"])
 @cache.cached(timeout = 60, query_string=True)
-def list_customers():
+def get_customers():
     try: 
         limit = int(request.args.get("limit", 10))
         offset = int(request.args.get("offset", 0))
     except ValueError:
-        return jsonify({"error": "limit an doffset must be integers."}), 404
+        return jsonify({"error": "limit and offset must be integers."}), 404
     
     q = select(Customer).limit(limit).offset(offset)
     rows = db.session.execute(q).scalars().all()
@@ -53,9 +53,10 @@ def update_customer(customer_id):
 
 #  DELETE A CUSTOMER
 @customer_bp.route("/<int:customer_id>", methods = ["DELETE"])
+@token_required
 def delete_customer(token_customer_id, customer_id):
     if token_customer_id != customer_id:
-        return jsonify({"error": "Unauthorized"}), 403
+        return jsonify({"error": "Unauthorized"}), 401
     
     customer = db.session.get(Customer, customer_id)
     
@@ -76,7 +77,7 @@ def login():
         return jsonify(err.messages), 400
     
     q = select(Customer).where(Customer.email == credentials["email"])
-    user = db.session.execute(q).scalar_one_or_none
+    user = db.session.execute(q).scalar_one_or_none()
 
     if user and user.password == credentials["password"]:
         token = encode_token(user.id)

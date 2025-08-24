@@ -12,6 +12,8 @@ def create_app(config_name):
 
     ma.init_app(app)
     db.init_app(app)
+    limiter.init_app(app)
+    cache.init_app(app)
 
     app.register_blueprint(mechanic_bp, url_prefix="/mechanics")
     app.register_blueprint(service_ticket_bp, url_prefix="/service-tickets")

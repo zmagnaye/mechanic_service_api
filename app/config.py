@@ -8,7 +8,7 @@ class Config:
     ALG = "HS256" 
 
 
-class DevelopmentConfig:
+class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:12345@localhost/mechanic_service_api'
     DEBUG = True
 

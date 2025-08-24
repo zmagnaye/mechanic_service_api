@@ -2,7 +2,8 @@ from .schemas import mechanic_schema, mechanics_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Mechanic, db
+from app.models import Mechanic
+from app.extensions import db
 from . import mechanic_bp
 
 # CREATE A MECHANIC

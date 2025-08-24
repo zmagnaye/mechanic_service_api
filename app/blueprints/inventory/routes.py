@@ -24,7 +24,7 @@ def create_part():
 @inventory_bp.route("/", methods = ["GET"])
 def list_parts():
     rows = db.session.execute(select(Inventory)).scalars().all()
-    return inventory_schema.jsonify(rows), 200
+    return inventories_schema.jsonify(rows), 200
 
 # GET A PART
 @inventory_bp.route("/<int:part_id>", methods = ["GET"])

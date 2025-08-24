@@ -32,7 +32,7 @@ class ServiceTicket(Base):
     __tablename__ = "service_ticket"
     id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[str] = mapped_column(db.String(300), nullable=False)
-    status: Mapped[str] = mapped_column(default = "open")
+    status: Mapped[str] = mapped_column(db.String(50), nullable = False, default = "open")
 
     customer_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("customer.id"))
     customer: Mapped["Customer"] = db.relationship(back_populates = "tickets")
