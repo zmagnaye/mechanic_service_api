@@ -1,0 +1,993 @@
+swagger: '2.0'
+info:
+  title: "Mechanic Service API"
+  description: "An interactive API documentation for a Mechanic Service Shop"
+  version: "1.0.0"
+host: "127.0.0.1:5000"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+
+tags:
+  - name: "Customers"
+  - name: "Mechanics"
+  - name: "Inventory"
+  - name: "ServiceTickets"
+
+paths: 
+# CUSTOMERS
+  /customers/:
+    post:
+      tags: 
+        - Customers
+      summary: "Register a customer"
+      description: "Create a new customer account."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to create a new customer."
+          required: true
+          schema: 
+            $ref: "#/definitions/CreateCustomerPayload"
+      responses:
+        "201":
+          description: "Successful Customer Creation"
+          schema: 
+            $ref: "#/definitions/CreateCustomerResponse"
+          examples:
+            application/json:
+              id: 1
+              name: "John Doe"
+              email: "john@example.com"
+      
+    get:
+      tags:
+        - Customers
+      summary: "Returns all customers."
+      description: "Endpoint to retrieve a list of all customers."
+      responses:
+        "200":
+          description: "Retrieved Customers Successfully"
+          schema:
+            $ref: "#/definitions/AllCustomers"
+
+  /customers/{customer_id}:    
+    parameters:
+      - in: "path"
+        name: "customer_id"
+        required: true
+        type: "integer"
+
+    put:
+      tags:
+        - Customers
+      summary: "Update a customer"
+      description: "Update an existing customer."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to update a customer."
+          required: true
+          schema: 
+            $ref: "#/definitions/UpdateCustomerPayload"
+      responses:
+        "200":
+          description: "Successfully Updated Customer"
+          schema: 
+            $ref: "#/definitions/UpdateCustomerResponse"
+          examples:
+            application/json:
+              id: 1
+              name: "John Updated"
+              email: "john@updated.com"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Customer 9999 not found."
+
+    delete:
+      tags:
+        - Customers
+      summary: "Delete a customer"
+      description: "Delete a customer. Requires token authentication."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "Successfully Deleted Customer"
+          schema: 
+            $ref: "#/definitions/DeleteResponse"
+          examples:
+            application/json:
+              message: "Successfully deleted customer 1."
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Token is missing or invalid."
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+  
+  /customers/login:
+    post:
+      tags:
+        - Customers
+      summary: "Login endpoint that generates token"
+      description: "Validates customer credentials and returns a token."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Login Credentials"
+          required: true
+          schema: 
+            $ref: "#/definitions/LoginCredentials"
+      responses:
+        "200":
+          description: "Login Successful"
+          schema: 
+            $ref: "#/definitions/LoginResponse"
+          examples:
+            application/json:
+              auth_token: "eyJhbGci0i..."
+              message: "success" 
+        "400":
+          description: "Invalid credentials"
+          schema: 
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Invalid Payload."
+  
+  /customers/my-tickets:
+    get:
+      tags:
+        - Customers
+      summary: "Returns tickets for the logged-in customer."
+      description: "Token-protected endpoint to retrieve the current customer's service tickets."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/AllServiceTickets"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Token is missing or invalid."
+
+# MECHANICS
+  /mechanics/:
+    post:
+      tags:
+        - Mechanics
+      summary: "Create a mechanic"
+      description: "Creates a new mechanic"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to create a Mechanic."
+          required: true
+          schema:
+            $ref: "#/definitions/CreateMechanicPayload"
+      responses:
+        "201":
+          description: "Successful Mechanic Creation"
+          schema:
+            $ref: "#/definitions/CreateMechanicResponse"
+          examples:
+            application/json:
+              id: 1
+              name: "Uno Mechanico"
+              email: "uno@shop.com"
+
+    get:
+      tags:
+        - Mechanics
+      summary: "Returns all Mechanics"
+      description: "Retrieve a list of all mechanics."
+      responses:
+        "200":
+          description: "Retrieved Mechanics Successfully"
+          schema:
+            $ref: "#/definitions/AllMechanics"
+  
+  /mechanics/{mechanic_id}:
+    parameters:
+      - in: "path"
+        name: "mechanic_id"
+        required: true
+        type: "integer"
+    
+    get:
+      tags: 
+        - Mechanics
+      summary: "Get mechanic"
+      description: "Retrieve a single mechanic"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UpdateMechanicResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Mechanic 9999 not found."
+
+    put:
+      tags:
+        - Mechanics
+      summary: "Update mechanic"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to update a Mechanic"
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateMechanicPayload"
+      responses:
+        "200":
+          description: "Successfully Updated Mechanic"
+          schema:
+            $ref: "#/definitions/UpdateMechanicResponse"    
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+    
+    delete:
+      tags:
+        - Mechanics
+      summary: "Delete mechanic"
+      description: "Delete a mechanic."
+      responses:
+        "200":
+          description: "Successfully Deleted Mechanic"
+          schema:
+            $ref: "#/definitions/DeleteResponse"    
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+
+# INVENTORY
+  /inventory/:
+    post:
+      tags:
+        - Inventory
+      summary: "Create part."
+      description: "Create a new inventory part."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to create a part."
+          required: true
+          schema:
+            $ref: "#/definitions/CreateInventoryPayload"
+      responses:
+        "201":
+          description: "Successful Part Creation"
+          schema:
+            $ref: "#/definitions/CreateInventoryResponse"
+          examples:
+            application/json: 
+              id: 1
+              name: "Brake Pads"
+              price: 49.99
+        "400":
+          description: "Validation Error"
+          schema: 
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              message: "price: Not a valid number."
+    
+    get:
+      tags: 
+        - Inventory
+      summary: "Returns all parts"
+      description: "Retrieve a list of all inventory parts"
+      responses:
+        "200":
+          description: "Retrieved all parts successfully"
+          schema:
+            $ref: "#/definitions/AllInventory"  
+  
+  /inventory/{part_id}:
+    parameters:
+      - in: "path"
+        name: "part_id"
+        required: true
+        type: "integer"
+
+    get:
+      tags: 
+        - Inventory
+      summary: "Get part"
+      description: "Retrieve a single part"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UpdateInventoryResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+
+    put:
+      tags: 
+        - Inventory
+      summary: "Update part"
+      description: "Update fields for a part."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to update a Part."
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateInventoryPayload"
+      responses:
+        "200":
+          description: "Successfully Updated Part"
+          schema:
+            $ref: "#/definitions/UpdateInventoryResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+    
+    delete:
+      tags:
+        - Inventory
+      summary: "Delete part"
+      description: "Delete a part."
+      responses:
+        "200":
+          description: "Successfully Deleted Part"
+          schema:
+            $ref: "#/definitions/DeleteResponse"    
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+
+# SERVICE TICKETS
+  /service-tickets/:
+    post:
+      tags:
+        - ServiceTickets
+      summary: "Create service ticket"
+      description: "Create a new ticket."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information"
+          required: true
+          schema:
+            $ref: "#/definitions/CreateServiceTicketPayload"
+      responses:
+        "201":
+          description: "Successful Ticket Creation"
+          schema:
+            $ref: "#/definitions/CreateServiceTicketResponse"
+          examples:
+            application/json:
+              id: 1
+              description: "Brake squeal"
+              status: "open"
+              customer_id: 1
+              mechanics: []
+              parts: []
+
+    get:
+      tags:
+        - ServiceTickets
+      summary: "Returns all Service Tickets"
+      description: "Retrieve a list of all service tickets."
+      responses:
+        "200":
+          description: "Retrieved Tickets Successfully"
+          schema:
+            $ref: "#/definitions/AllServiceTickets"
+
+  /service-tickets/{ticket_id}:
+    parameters:
+      - in: "path"
+        name: "ticket_id"
+        required: true
+        type: "integer"
+
+    get:
+      tags:
+        - ServiceTickets
+      summary: "Get service ticket"
+      description: "Retrieve a single service ticket."
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse" 
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+    put:
+      tags: 
+        - ServiceTickets
+      summary: "Update service ticket"
+      description: "Update fields for a ticket."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to update a Service Ticket."
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketPayload"
+      responses:
+        "200":
+          description: "Successfully Updated Ticket"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+    
+    delete:
+      tags:
+        - ServiceTickets
+      summary: "Delete service ticket"
+      description: "Delete a service ticket."
+      responses:
+        "200":
+          description: "Successfully Deleted Ticket"
+          schema:
+            $ref: "#/definitions/DeleteResponse"    
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+  
+  /service-tickets/{ticket_id}/assign-mechanic/{mechanic_id}:
+    parameters:
+      - in: "path"
+        name: "ticket_id"
+        required: true
+        type: "integer"
+      - in: "path"
+        name: "mechanic_id"
+        required: true
+        type: "integer"
+    
+    put:
+      tags: 
+        - ServiceTickets
+      summary: "Assign mechanic"
+      description: "Assign a mechanic to the ticket."
+      responses:
+        "200":
+          description: "Updated Ticket"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."  
+
+  /service-tickets/{ticket_id}/remove-mechanic/{mechanic_id}:
+    parameters:
+      - in: "path"
+        name: "ticket_id"
+        required: true
+        type: "integer"
+      - in: "path"
+        name: "mechanic_id"
+        required: true
+        type: "integer"
+
+    put:
+      tags: 
+        - ServiceTickets
+      summary: "Remove mechanic"
+      description: "Remove a mechanic from the ticket."
+      responses:
+        "200":
+          description: "Updated Ticket"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse"
+        "404":
+          description: "Ticket or mechanic not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+
+  /service-tickets/{ticket_id}/edit:
+    parameters:
+      - in: "path"
+        name: "ticket_id"
+        required: true
+        type: "integer"
+    
+    put:
+      tags: 
+        - ServiceTickets
+      summary: "Bulk edit mechanics on ticket"
+      description: "Add and/or remove multiple mechanics on a ticket."
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/EditServiceTicketMechanicsPayload" 
+      responses:
+        "200":
+          description: "Updated Ticket"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+  
+  /service-tickets/{ticket_id}/add-part:
+    parameters:
+      - in: "path"
+        name: "ticket_id"
+        required: true
+        type: "integer"
+    
+    post:
+      tags: 
+        - ServiceTickets
+      summary: "Add part to ticket"
+      description: "Attach an inventory part to a ticket."
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/AddPartToTicketPayload" 
+      responses:
+        "200":
+          description: "Updated Ticket"
+          schema:
+            $ref: "#/definitions/UpdateServiceTicketResponse"
+        "404":
+          description: "Ticket or part not found"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json:
+              message: "Resource not found."
+
+definitions:
+  LoginCredentials:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      password:
+        type: "string"
+
+    required:
+      - email
+      - password
+
+  LoginResponse:
+    type: "object"
+    properties:
+      auth_token:
+        type: "string"
+      message:
+        type: "string"
+
+  ErrorResponse: 
+    type: "object"
+    properties:
+      message:
+        type: "string"
+  
+  # Customers
+  CreateCustomerPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+
+    required:
+      - name
+      - email
+      - password
+
+  CreateCustomerResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+
+  UpdateCustomerPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+
+    required:
+      - name
+      - email
+      - password
+  
+  UpdateCustomerResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+
+  AllCustomers:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        email:
+          type: "string"
+
+  # Mechanics
+  CreateMechanicPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+
+    required:
+      - name
+      - email
+
+  CreateMechanicResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+
+  UpdateMechanicPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+
+    required:
+      - name
+      - email
+
+  UpdateMechanicResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+
+  AllMechanics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        email:
+          type: "string"
+
+  # Inventory
+  CreateInventoryPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      price:
+        type: "number"
+        format: "float"
+
+    required:
+      - name
+      - price
+
+  CreateInventoryResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      price:
+        type: "number"
+        format: "float"
+
+  UpdateInventoryPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      price:
+        type: "number"
+        format: "float"
+
+    required:
+      - name
+      - price
+
+  UpdateInventoryResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      price:
+        type: "number"
+        format: "float"
+
+  AllInventory:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        price:
+          type: "number"
+          format: "float"
+
+  # Service Tickets
+  CreateServiceTicketPayload:
+    type: "object"
+    properties:
+      description:
+        type: "string"
+      customer_id:
+        type: "integer"
+      status:
+        type: "string"
+    required:
+      - description
+      - customer_id
+
+  CreateServiceTicketResponse:
+    type: "object"
+    properties:
+      id: 
+        type: "integer"
+      description: 
+        type: "string"
+      status: 
+        type: "string"
+      customer_id: 
+        type: "integer"
+
+      mechanics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+            name:
+              type: "string"
+            email:
+              type: "string"
+
+      parts:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+            name:
+              type: "string"
+            price:
+              type: "number"
+              format: "float"
+  
+  UpdateServiceTicketPayload:
+    type: "object"
+    properties:
+      description: 
+        type: "string"
+      status: 
+        type: "string"
+      customer_id: 
+        type: "integer"
+
+  UpdateServiceTicketResponse:
+    type: "object"
+    properties:
+      id: 
+        type: "integer"
+      description: 
+        type: "string"
+      status: 
+        type: "string"
+      customer_id: 
+        type: "integer"
+
+      mechanics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+            name:
+              type: "string"
+            email:
+              type: "string"
+
+      parts:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+            name:
+              type: "string"
+            price:
+              type: "number"
+              format: "float"
+  
+  AllServiceTickets:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        description:
+          type: "string"
+        status:
+          type: "string"
+        customer_id:
+          type: "integer"
+        
+        mechanics:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "integer"
+              name:
+                type: "string"
+              email:
+                type: "string"
+
+        parts:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "integer"
+              name:
+                type: "string"
+              price:
+                type: "number"
+                format: "float"
+  
+  EditServiceTicketMechanicsPayload:
+    type: "object"
+    properties:
+      add_mechanics:
+        type: "array"
+        items:
+          type: "integer"
+      remove_mechanics:
+        type: "array"
+        items:
+          type: "integer"
+  
+  AddPartToTicketPayload:
+    type: "object"
+    properties:
+      part_id:
+        type: "integer"
+    required:
+      - part_id
+
+  DeleteResponse:
+    type: "object"
+    properties:
+      message: 
+        type: "string"  
