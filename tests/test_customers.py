@@ -6,13 +6,14 @@ import unittest
 class TestCustomers(unittest.TestCase):
     def setUp(self):
         self.app = create_app('TestingConfig')
+        self.client = self.app.test_client()
         self.customer = Customer(name="test_user", email="test@email.com", password='test')
         with self.app.app_context():
             db.drop_all()
             db.create_all()
             db.session.add(self.customer)
             db.session.commit()
-        self.client = self.app.test_client()
+            self.customer_id = self.customer.id
 
     # Create (POST: /customers/)
     def test_create_customer_success(self):
@@ -54,7 +55,7 @@ class TestCustomers(unittest.TestCase):
     def test_update_customer(self):
         payload = {"name": "Updated Name","email": "","password": ""}
         headers = {'Authorization': "Bearer " + self.test_login_customer()}
-        response = self.client.put(f'/customers/{self.customer.id}', json=payload, headers=headers)
+        response = self.client.put(f'/customers/{self.customer_id}', json=payload, headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()['name'], 'Updated Name') 
         self.assertEqual(response.get_json()['email'], 'test@email.com')
@@ -68,10 +69,10 @@ class TestCustomers(unittest.TestCase):
     # Authorized delete attempt (DELETE: /customers/{id})
     def test_delete_customer(self):
         headers = {'Authorization': f"Bearer " + self.test_login_customer()}
-        response = self.client.delete(f'/customers/{self.customer.id}', headers=headers)
+        response = self.client.delete(f'/customers/{self.customer_id}', headers=headers)
         self.assertEqual(response.status_code, 200)
 
     # Unauthorized delete attempt (DELETE: /customers/{id})
     def test_delete_unauthorized(self):
-        response = self.client.delete(f'/customers/{self.customer.id}')
+        response = self.client.delete(f'/customers/{self.customer_id}')
         self.assertIn(response.status_code, (401, 403))
