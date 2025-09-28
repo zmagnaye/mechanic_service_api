@@ -45,10 +45,17 @@ def update_customer(customer_id):
     
     payload = request.json or {}
 
-    for k, v in payload.items():
-        if hasattr(customer, k):
-            setattr(customer, k, v)
+    try:
+        data = customer_schema.load(request.json, partial=True)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    for key, value in data.items():
+        if value not in (None, ""):
+            setattr(customer, key, value)
+
     db.session.commit()
+    db.session.refresh(customer)
     return customer_schema.jsonify(customer), 200
 
 #  DELETE A CUSTOMER
@@ -83,8 +90,8 @@ def login():
         token = encode_token(user.id)
         return jsonify({"status": "success", "auth_token": token}), 200
     
-    return jsonify({"message": "Invalid Email or Password"}), 401
-
+    return jsonify({"message": "Invalid email or password!"}), 401
+ 
 # Protected: View my tickets
 @customer_bp.route("/my-tickets", methods = ["GET"])
 @token_required

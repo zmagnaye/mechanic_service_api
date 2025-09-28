@@ -2,7 +2,7 @@ from .schemas import service_ticket_schema, service_tickets_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import ServiceTicket, Mechanic, Inventory, ticket_mechanic, db
+from app.models import ServiceTicket, Mechanic, Inventory, Customer,ticket_mechanic, db
 from . import service_ticket_bp
 
 # CREATE A TICKET
@@ -13,6 +13,10 @@ def create_ticket():
 
     except ValidationError as err:
         return jsonify(err.messages), 400
+    
+    customer_id = data.get("customer_id")
+    if not db.session.get(Customer, customer_id):
+        return jsonify({"error": "Customer not found"}), 404
     
     new_ticket = ServiceTicket(**data)
     db.session.add(new_ticket)
@@ -42,7 +46,7 @@ def update_ticket(ticket_id):
         return jsonify({"error": "Service ticket not found."}), 404
     
     try:
-        data = service_ticket_schema.load(request.json)
+        data = service_ticket_schema.load(request.json, partial=True)
     except ValidationError as err:
         return jsonify(err.messages), 400
     
@@ -118,24 +122,27 @@ def edit_ticket(ticket_id):
                 ticket.mechanics.remove(mechanic)
 
     db.session.commit()
-    return jsonify({"message": f"Updated ticket {ticket_id}"}), 200
+    return service_ticket_schema.jsonify(ticket), 200
 
 # ADD PART TO TICKET
 @service_ticket_bp.route("/<int:ticket_id>/add-part", methods = ["POST"])
 def add_part_to_ticket(ticket_id):
-    ticket = db.session.get(ServiceTicket, ticket_id)
+    data = request.get_json() or {}
 
+    part_id = data.get("part_id") or data.get("inventory_id")
+    if part_id is None:
+        return jsonify({"error": "part_id is required"}), 400
+
+    try:
+        part_id = int(part_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid part_id"}), 400
+
+    ticket = db.session.get(ServiceTicket, ticket_id )
     if not ticket:
-        return jsonify({"error": "Service ticket not found."}), 404
+        return jsonify({"error": "Ticket not found."}), 404
     
-    data = request.json or {}
-    part_id = data.get("inventory_id")
-
-    if not part_id:
-        return jsonify({"error": "inventory_id us required"}), 400
-    
-    part = db.session.get(Inventory, int(part_id))
-
+    part = db.session.get(Inventory, part_id)    
     if not part: 
         return jsonify({"error": "Part not found"}), 404
     
