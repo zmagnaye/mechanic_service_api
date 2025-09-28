@@ -1,25 +1,37 @@
 # Mechanic Service API
 
-A RESTful API to manage customers, mechanics, service tickets, and inventory for a repair shop. Built with Flask, SQLAlchemy, and Marshmallow, following the application factory + blueprints pattern. Includes rate limiting, response caching, JWT token authentication, advanced relationship queries, and pagination.
+A RESTful API to manage customers, mechanics, service tickets, and inventory for a repair shop. Built with Flask, SQLAlchemy, and Marshmallow, following the application factory + blueprints pattern. Includes rate limiting, response caching, JWT token authentication, advanced relationship queries, and pagination. Fully documented with Swagger and tested using Python's unittest library. 
 
 ## Features
 
-- Flask blueprints & modular structure
-- SQLAlchemy models with relationships (one-to-many & many-to-many)
-- JWT token auth (python-jose)
-- Rate limiting (Flask-Limiter): route-specific and default limits
-- Response caching (Flask-Caching) with query-string support
-- Advanced queries
-  - Add/remove mechanics on a ticket (bulk edit route)
-- Pagination on list endpoints (customers)
-- Postman collection included
+- Customer management (CRUD, login, my-tickets)
+- Mechanic management (CRUD)
+- Inventory management (CRUD)
+- Service ticket management (CRUD, assign/remove mechanics, add parts, bulk edit)
+- JWT token authentication for protected routes
 
 ## Tech Stack
-- Python 3.11+
+- Python 3.x
 - Flask, Flask-SQLAlchemy, Marshmallow, Flask-Marshmallow
 - Flask-Limiter, Flask-Caching
 - python-jose
 - MySQL (mysql-connector)
+- Swagger / Swagger-UI
+- Unittest (for testing)
+
+## Create Virtual Environment
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate     # Windows
+
+## Install dependencies
+pip install -r requirements.txt
+
+## Run the app
+python run.py
+
+## Run all unit tests
+python -m unittest discover tests
 
 ## Authentication
 - Login (/customers/login) returns a JWT with subject (sub) = customer_id
