@@ -11,9 +11,10 @@ SWAGGER_URL = "/api/docs"
 API_URL = "/static/swagger.yaml" 
 swaggerui_bp = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={"appname": "Mechanic Service API"})
 
-def create_app(config_name):
+def create_app(config_class):
     app = Flask(__name__)
-    app.config.from_object(f"app.config.{config_name}")
+    #app.config.from_object(f"app.config.{config_name}")
+    app.config.from_object(config_class)
 
     ma.init_app(app)
     db.init_app(app)
