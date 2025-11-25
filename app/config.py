@@ -19,4 +19,4 @@ class TestingConfig(Config):
     CACHE_TYPE = 'SimpleCache'
 
 class ProductionConfig:
-    pass
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
