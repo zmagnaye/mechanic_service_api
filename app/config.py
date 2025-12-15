@@ -14,9 +14,9 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///testing.db'
-    TESTING: True
+    TESTING = True
     DEBUG = True
     CACHE_TYPE = 'SimpleCache'
 
-class ProductionConfig:
+class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")

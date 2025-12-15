@@ -5,7 +5,7 @@ import unittest
 
 class TestInventory(unittest.TestCase):
     def setUp(self):
-        self.app = create_app('TestingConfig')
+        self.app = create_app('app.config.TestingConfig')
         with self.app.app_context():
             db.drop_all()
             db.create_all()

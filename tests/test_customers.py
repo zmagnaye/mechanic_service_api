@@ -5,7 +5,7 @@ import unittest
 
 class TestCustomers(unittest.TestCase):
     def setUp(self):
-        self.app = create_app('TestingConfig')
+        self.app = create_app('app.config.TestingConfig')
         self.client = self.app.test_client()
         self.customer = Customer(name="test_user", email="test@email.com", password='test')
         with self.app.app_context():
