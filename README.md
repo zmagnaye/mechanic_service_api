@@ -4,11 +4,8 @@ A RESTful API to manage customers, mechanics, service tickets, and inventory for
 
 ## Live Deployment
 
-Base URL:
-https://mechanic-service-api.onrender.com
-
-Swagger Documentation:
-https://mechanic-service-api.onrender.com/api/docs/
+- Base URL: https://mechanic-service-api.onrender.com
+- Swagger Documentation: https://mechanic-service-api.onrender.com/api/docs/
 
 ## Features
 
@@ -20,15 +17,12 @@ https://mechanic-service-api.onrender.com/api/docs/
 
 ## CI/CD Pipeline
 
-This project uses GitHub Actions for continuous integration and deployment.
-
-Pipeline flow:
-1. Build – Install dependencies
-2. Test – Run all unit tests using unittest
-3. Deploy – Automatically deploy to Render only if tests pass
-
-Workflow file:
-.github/workflows/main.yaml
+- This project uses GitHub Actions for continuous integration and deployment.
+- Pipeline flow:
+  - Build – Install dependencies
+  - Test – Run all unit tests using unittest
+  - Deploy – Automatically deploy to Render only if tests pass
+- Workflow file: .github/workflows/main.yaml
 
 ## Tech Stack
 - Python 3.x
@@ -40,12 +34,12 @@ Workflow file:
 - Unittest (for testing)
 
 ## Create Virtual Environment
-python -m venv venv
-source venv/bin/activate  # macOS/Linux
-venv\Scripts\activate     # Windows
+- python -m venv venv
+- source venv/bin/activate  # macOS/Linux
+- venv\Scripts\activate     # Windows
 
 ## Install dependencies
-pip install -r requirements.txt
+- pip install -r requirements.txt
 
 ## Environment viriables:
 
@@ -80,7 +74,7 @@ python -m unittest discover tests
 - Response caching via flask_caching (SimpleCache)
 
 ## Project Structure
-
+```
 mechanic_service_api/
 ├── app/
 │   ├── blueprints/
@@ -93,7 +87,7 @@ mechanic_service_api/
 ├── flask_app.py
 ├── requirements.txt
 └── README.md
-
+```
 ## Routes
 ### Mechanics (`/mechanics`)
 - `POST /` – Create a new mechanic
